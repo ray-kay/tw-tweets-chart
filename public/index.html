@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>See most active hours of Twitter user</title>
+</head>
+<body>
+    <h1>See most active hours of Twitter user</h1>
+
+    <form name="search" id="tw_search_form">
+        <label for="tw_user_name">Twitter User name</label>
+        <input name="tw_user_name" id="tw_user_name" type="text">
+        <button type="submit" name="search">Get them!</button>
+    </form>
+
+    <!--<script src="js/tweets.js"></script>-->
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script>
+        //getTweets('DJRayKay');
+
+        var username = "DJRayKay";
+
+        $(function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: {'q': username },
+                url: 'api/tweets.php',
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR)
+                },
+                success: function (msg) {
+                    console.log(msg);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
