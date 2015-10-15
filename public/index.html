@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>See most active hours of Twitter user</title>
+
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
     <h1>See most active hours of Twitter user</h1>
@@ -16,14 +19,29 @@
         <button type="submit" name="search">Get them!</button>
     </form>
 
+    <div id="graph"><svg></svg></div>
+
     <!--<script src="js/tweets.js"></script>-->
+    <!-- cdn libs for graph-->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script>
+
     <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script>
-        //getTweets('DJRayKay');
-
-        var username = "DJRayKay";
 
         $(function () {
+            $('#tw_search_form').submit(function(e){
+                e.stopPropagation();
+                var username = $('#tw_user_name').val();
+                if(username.length > 0){
+                    getTweets(username);
+                }
+                return false;
+            });
+
+        });
+
+        function getTweets(username){
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
@@ -32,11 +50,54 @@
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(jqXHR)
                 },
-                success: function (msg) {
-                    console.log(msg);
+                success: function (data) {
+                    var values = [];
+                    $.each(data.hours, function(hour, value){
+                        values.push({
+                            y: value,
+                            x: hour+':00'
+                        });
+                    });
+
+                    var graphData = [{
+                        key: 'Tweets',
+                        values: values
+                    }];
+
+                    renderGraph('#graph svg',graphData);
                 }
             });
-        });
+        }
+
+        function renderGraph(elemSelector, data)
+        {
+            nv.addGraph({
+                generate: function() {
+                    var chart = nv.models.multiBarChart();
+                    chart.yAxis.tickFormat(d3.format(',d'));
+                    chart.showControls(false);
+
+                    var svg = d3.select(elemSelector)
+                                .datum(data);
+
+                    svg.transition().duration(0).call(chart);
+                    return chart;
+                },
+                callback: function(graph) {
+                    nv.utils.windowResize(function() {
+                        var width = $(elemSelector).parent().width();
+                        //var height = nv.utils.windowSize().height;
+                        graph.width(width);//.height(height);
+                        d3.select(elemSelector)
+                                .attr('width', width)
+                            //      .attr('height', height)
+                                .transition().duration(0)
+                                .call(graph);
+                    });
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
