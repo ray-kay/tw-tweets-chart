@@ -30,8 +30,8 @@
 
                     <form class="form-inline" id="tw_search_form">
                         <div class="form-group">
-                            <label for="tw_user_name" class="sr-only">Twitter User name</label>
-                            <input type="text" class="form-control" id="tw_user_name" placeholder="Twitter User name">
+                            <label for="tw_user_name" class="sr-only">Twitter Username</label>
+                            <input type="text" class="form-control" id="tw_user_name" placeholder="Twitter Username">
                         </div>
                         <button type="submit" class="btn btn-primary">Get them!</button>
                     </form>
@@ -74,6 +74,10 @@
                 var username = $('#tw_user_name').val();
                 if(username.length > 0){
                     getTweets(username);
+                }
+                else{
+                    $('#msg').html('Please type in a Twitter username')
+                            .attr('class', 'text-warning');
                 }
                 return false;
             });

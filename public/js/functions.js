@@ -38,7 +38,13 @@ function getTweets(username)
 
             renderGraph('#graph svg',graphData);
 
-            $('#msg').html(data.count+' tweets of max 500 found for this user')
+            var msg = data.count+' tweets of max 500 found for this user.';
+
+            if(data.time_zone.length > 0){
+                msg += '<br>Hours according to users time zone: '+data.time_zone;
+            }
+
+            $('#msg').html(msg)
                 .attr('class', 'text-success');
 
             button.attr('disabled',null).html('Get them!');
