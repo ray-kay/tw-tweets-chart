@@ -53,30 +53,21 @@
             </div>
         </div>
     </div>
-<!--
-    <form name="search" >
-        <label for="tw_user_name">Twitter User name</label>
-        <input name="tw_user_name" id="tw_user_name" type="text">
-        <button type="submit" name="search">Get them!</button>
-    </form>
--->
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
+    <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="http://v4-alpha.getbootstrap.com/assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="http://v4-alpha.getbootstrap.com/dist/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="http://v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
-
-    <!--<script src="js/tweets.js"></script>-->
     <!-- cdn libs for graph-->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script>
 
-    <script>
+    <script src="js/functions.js"></script>
 
+    <script>
         $(function () {
             $('#tw_search_form').submit(function(e){
                 e.stopPropagation();
@@ -86,79 +77,7 @@
                 }
                 return false;
             });
-
         });
-
-        function getTweets(username){
-
-            var button = $('#tw_search_form button');
-            button.attr('disabled','disabled').html('grabbing tweets');
-
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                data: {'q': username },
-                url: 'api/tweets.php',
-                error: function (jqXHR, textStatus, errorThrown) {
-                    $('#msg').html(errorThrown+ ': '+jqXHR.responseText)
-                            .attr('class', 'text-danger');
-
-                    button.attr('disabled',null).html('Get them!');
-                },
-                success: function (data) {
-                    var values = [];
-                    $.each(data.hours, function(hour, value){
-                        values.push({
-                            y: value,
-                            x: hour+':00'
-                        });
-                    });
-
-                    var graphData = [{
-                        key: 'Tweets',
-                        values: values
-                    }];
-
-                    renderGraph('#graph svg',graphData);
-
-                    $('#msg').html(data.count+' tweets found to this user')
-                            .attr('class', 'text-success');
-
-                    button.attr('disabled',null).html('Get them!');
-                }
-            });
-        }
-
-        function renderGraph(elemSelector, data)
-        {
-            nv.addGraph({
-                generate: function() {
-                    var chart = nv.models.multiBarChart();
-                    chart.yAxis.tickFormat(d3.format(',d'));
-                    chart.xAxis.axisLabel('Hour of the day');
-                    chart.showControls(false);
-
-                    var svg = d3.select(elemSelector)
-                                .datum(data);
-
-                    svg.transition().duration(0).call(chart);
-                    return chart;
-                },
-                callback: function(graph) {
-                    nv.utils.windowResize(function() {
-                        var width = $(elemSelector).parent().width();
-                        //var height = nv.utils.windowSize().height;
-                        graph.width(width);//.height(height);
-                        d3.select(elemSelector)
-                                .attr('width', width)
-                            //      .attr('height', height)
-                                .transition().duration(0)
-                                .call(graph);
-                    });
-                }
-            });
-        }
-
     </script>
 </body>
 </html>
