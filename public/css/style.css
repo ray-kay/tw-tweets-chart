@@ -1,6 +1,8 @@
 #graph {
     width: 100%;
     height: 400px;
+    background-color: #fefefe;
+    border-radius: 5px;
 }
 
 #graph svg{
@@ -8,4 +10,15 @@
     width: 100%;
     height: 100%;
     overflow: visible;
+}
+
+#msg{
+    min-height: 24px;
+}
+
+.cover-container{
+    margin-top: 20px;
+}
+.mastfoot{
+    position: inherit;
 }

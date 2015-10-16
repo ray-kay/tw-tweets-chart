@@ -4,29 +4,77 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Test app to show twitter users post by hour">
+    <meta name="author" content="Ralf Hauptmann">
 
-    <title>See most active hours of Twitter user</title>
+    <title>Tweets by hour</title>
 
+    <!-- BS 4 -->
+    <link href="http://v4-alpha.getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BS 4 - Custom styles for this template -->
+    <link href="http://v4-alpha.getbootstrap.com/examples/cover/cover.css" rel="stylesheet">
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="http://v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <!-- nvd3 style -->
     <link href="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.css" rel="stylesheet">
+    <!-- custom style -->
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-    <h1>See most active hours of Twitter user</h1>
+    <div class="site-wrapper">
+        <div class="site-wrapper-inner">
+            <div class="cover-container">
+                <div class="inner cover">
+                    <h1 class="cover-heading">Tweets by hour</h1>
+                    <p class="lead">Histogram of a Twitter users most active hours.</p>
 
-    <form name="search" id="tw_search_form">
+                    <form class="form-inline" id="tw_search_form">
+                        <div class="form-group">
+                            <label for="tw_user_name" class="sr-only">Twitter User name</label>
+                            <input type="text" class="form-control" id="tw_user_name" placeholder="Twitter User name">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Get them!</button>
+                    </form>
+
+                    <p id="msg"></p>
+                    <div id="graph">
+                        <svg></svg>
+                    </div>
+                </div>
+
+                <div class="mastfoot">
+                    <div class="inner">
+                        <p>Implemented by <a href="mailto:ralf.hauptmann84@gmail.com">Ralf Hauptmann</a></p>
+                        <p>Cover template for <a href="http://v4-alpha.getbootstrap.com" target="_blank">Bootstrap (4 alpha)</a></p>
+                        <p>D3 Chart library <a href="http://nvd3.org" target="_blank">nvd3</a></p>
+                        <p>Twitter OAuth library <a href="https://github.com/mynetx/codebird-php" target="_blank">codebird</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--
+    <form name="search" >
         <label for="tw_user_name">Twitter User name</label>
         <input name="tw_user_name" id="tw_user_name" type="text">
         <button type="submit" name="search">Get them!</button>
     </form>
+-->
 
-    <div id="graph"><svg></svg></div>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="http://v4-alpha.getbootstrap.com/assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="http://v4-alpha.getbootstrap.com/dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="http://v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
 
     <!--<script src="js/tweets.js"></script>-->
     <!-- cdn libs for graph-->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script>
 
-    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script>
 
         $(function () {
@@ -42,13 +90,20 @@
         });
 
         function getTweets(username){
+
+            var button = $('#tw_search_form button');
+            button.attr('disabled','disabled').html('grabbing tweets');
+
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
                 data: {'q': username },
                 url: 'api/tweets.php',
                 error: function (jqXHR, textStatus, errorThrown) {
-                    console.log(jqXHR)
+                    $('#msg').html(errorThrown+ ': '+jqXHR.responseText)
+                            .attr('class', 'text-danger');
+
+                    button.attr('disabled',null).html('Get them!');
                 },
                 success: function (data) {
                     var values = [];
@@ -65,6 +120,11 @@
                     }];
 
                     renderGraph('#graph svg',graphData);
+
+                    $('#msg').html(data.count+' tweets found to this user')
+                            .attr('class', 'text-success');
+
+                    button.attr('disabled',null).html('Get them!');
                 }
             });
         }
@@ -75,6 +135,7 @@
                 generate: function() {
                     var chart = nv.models.multiBarChart();
                     chart.yAxis.tickFormat(d3.format(',d'));
+                    chart.xAxis.axisLabel('Hour of the day');
                     chart.showControls(false);
 
                     var svg = d3.select(elemSelector)
